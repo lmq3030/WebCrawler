@@ -17,7 +17,7 @@ class PageProcessor(val pageLinksCollector: Actor, val imgCollector: Actor, val 
       val imgs = ImgPattern.findAllIn(page).matchData.map(_.group(2)).toSet
       val ppts = PPTPattern.findAllIn(page).matchData.map(_.group(2)).toSet
 
-      (links.filter(filterLink), imgs, ppts)
+      (links.filter(filterLink), imgs.filter(filterLink), ppts.filter(filterLink))
 
     }
 
@@ -32,6 +32,7 @@ class PageProcessor(val pageLinksCollector: Actor, val imgCollector: Actor, val 
 
   def reconstructLinks(pageLink: String, links: Set[String]): Set[String] = {
     val baseLink = pageLink.split('/').init.mkString("", "/", "")
+    
     def reconstructSingleLink(link: String): String = {
       if (link.startsWith("http")) link
       else if (link.startsWith("www")) link
@@ -58,8 +59,6 @@ class PageProcessor(val pageLinksCollector: Actor, val imgCollector: Actor, val 
           }
           case None => pageLinksCollector ! "DONE"
         }
-        exit
-
       }
     }
   }
